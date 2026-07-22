@@ -42,13 +42,9 @@ stages {
     stage('Deploy') {
         steps {
 
-            bat '''
-                powershell -Command "$existing = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue; if ($existing) { Stop-Process -Id $existing.OwningProcess -Force }"
-            '''
+            bat 'taskkill /F /IM node.exe >nul 2>&1 || exit /b 0'
 
-            bat '''
-                powershell -Command "Start-Process node -ArgumentList 'server.js' -WorkingDirectory '%CD%' -WindowStyle Hidden"
-            '''
+            bat 'start "NodeApp" /MIN cmd /c "node server.js"'
 
             sleep 5
 
