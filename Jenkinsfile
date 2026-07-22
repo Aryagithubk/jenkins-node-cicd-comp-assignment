@@ -41,8 +41,17 @@ stages {
 
     stage('Deploy') {
         steps {
-            bat 'start "NodeApp" /MIN cmd /c "node server.js"'
+
+            bat '''
+                powershell -Command "$existing = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue; if ($existing) { Stop-Process -Id $existing.OwningProcess -Force }"
+            '''
+
+            bat '''
+                powershell -Command "Start-Process node -ArgumentList 'server.js' -WorkingDirectory '%CD%' -WindowStyle Hidden"
+            '''
+
             sleep 5
+
             bat 'curl http://localhost:3000/health'
 
             echo 'Application deployed successfully.'
@@ -52,6 +61,7 @@ stages {
 }
 
 post {
+
     success {
         echo 'CI/CD Pipeline completed successfully!'
     }
