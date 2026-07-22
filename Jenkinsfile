@@ -1,60 +1,68 @@
 pipeline {
 
-    agent any
+agent any
 
-    stages {
+stages {
 
-        stage('Checkout Source Code') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                bat 'npm install'
-            }
-        }
-
-        stage('Code Validation') {
-            steps {
-                bat 'if not exist package.json exit /b 1'
-                bat 'if not exist app.js exit /b 1'
-                bat 'if not exist server.js exit /b 1'
-                bat 'if not exist app.test.js exit /b 1'
-
-                echo 'Required project files are present.'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                bat 'npm run build'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                bat 'npm test'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                bat 'start /B node server.js'
-                echo 'Application deployed successfully.'
-                echo 'Application available at http://localhost:3000'
-            }
+    stage('Checkout Source Code') {
+        steps {
+            checkout scm
         }
     }
 
-    post {
-        success {
-            echo 'CI/CD Pipeline completed successfully!'
+    stage('Install Dependencies') {
+        steps {
+            bat 'npm install'
         }
+    }
 
-        failure {
-            echo 'CI/CD Pipeline failed!'
+    stage('Code Validation') {
+        steps {
+            bat 'if not exist package.json exit /b 1'
+            bat 'if not exist app.js exit /b 1'
+            bat 'if not exist server.js exit /b 1'
+            bat 'if not exist app.test.js exit /b 1'
+
+            echo 'Required project files are present.'
+        }
+    }
+
+    stage('Build') {
+        steps {
+            bat 'npm run build'
+        }
+    }
+
+    stage('Test') {
+        steps {
+            bat 'npm test'
+        }
+    }
+
+    stage('Deploy') {
+        steps {
+            bat '''
+                start "NodeApp" /MIN cmd /c "node server.js"
+            '''
+
+            sleep 5
+
+            bat 'curl http://localhost:3000/health'
+
+            echo 'Application deployed successfully.'
+            echo 'Application available at http://localhost:3000'
         }
     }
 }
+
+post {
+    success {
+        echo 'CI/CD Pipeline completed successfully!'
+    }
+
+    failure {
+        echo 'CI/CD Pipeline failed!'
+    }
+}
+
+
