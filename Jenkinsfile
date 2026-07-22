@@ -1,5 +1,6 @@
 pipeline {
 
+```
 agent any
 
 stages {
@@ -41,12 +42,8 @@ stages {
 
     stage('Deploy') {
         steps {
-            bat '''
-                start "NodeApp" /MIN cmd /c "node server.js"
-            '''
-
+            bat 'start "NodeApp" /MIN cmd /c "node server.js"'
             sleep 5
-
             bat 'curl http://localhost:3000/health'
 
             echo 'Application deployed successfully.'
@@ -64,5 +61,6 @@ post {
         echo 'CI/CD Pipeline failed!'
     }
 }
+```
 
-
+}
